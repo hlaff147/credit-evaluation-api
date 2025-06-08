@@ -45,7 +45,7 @@ src/main/java/com/neurolake/challenge/credit_evaluation_api/
 ## Tecnologias Utilizadas
 - **Java 24**
 - **Spring Boot 3.5.0** (Web, Data JPA, Validation, Test)
-- **H2 Database** (testes/dev) e **MySQL** (produção)
+- **MySQL** (produção e testes com Testcontainers)
 - **Lombok**
 - **SpringDoc OpenAPI (Swagger UI)**
 - **Maven**
@@ -55,7 +55,7 @@ src/main/java/com/neurolake/challenge/credit_evaluation_api/
 
 ## Como Executar a Aplicação
 
-1. **Pré-requisitos:** JDK 24+, Maven 3.6+
+1. **Pré-requisitos:** JDK 24+, Maven 3.6+, MySQL rodando (ou use Testcontainers nos testes)
 2. **Build e execução:**
    ```bash
    mvn clean install
@@ -64,7 +64,6 @@ src/main/java/com/neurolake/challenge/credit_evaluation_api/
 3. **Acesse:**
    - API: `http://localhost:8080`
    - Swagger: `http://localhost:8080/swagger-ui.html`
-   - H2 Console: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:creditdb`, User: `sa`)
 
 ---
 
@@ -185,7 +184,7 @@ Response 200 OK:
 ## Testes Automatizados e Patterns
 
 - **Testes de componente**: simulam requests HTTP reais (MockMvc), cobrindo fluxos completos e cenários de erro.
-- **Testes de integração**: usam Testcontainers e banco real (MySQL/H2) para validar persistência e endpoints.
+- **Testes de integração**: usam Testcontainers com banco MySQL real para validar persistência e endpoints.
 - **Testes unitários**: cobrem regras de negócio isoladas (ex: elegibilidade por idade/renda).
 - **Fixtures**: geração de dados de teste reutilizáveis.
 - **Padrão de nomenclatura**: `deve<Acao>Quando<Condicao>`.
