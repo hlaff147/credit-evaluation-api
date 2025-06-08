@@ -1,0 +1,95 @@
+# Arquivos de ajuda gerados por IDEs
+HELP.md
+
+### Maven ###
+# Pasta de saída do build
+target/
+
+# Wrapper do Maven (o .jar é baixado, não precisa ser versionado se você usa o wrapper)
+.mvn/wrapper/maven-wrapper.jar
+
+# Arquivos de backup do POM
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+
+### Arquivos de Log ###
+*.log
+logs/
+
+### IntelliJ IDEA ###
+# Pasta de configuração específica do projeto
+.idea/
+
+# Arquivos de workspace específicos do usuário
+*.iws
+
+# Arquivos de módulo (gerados a partir do pom.xml)
+*.iml
+
+# Arquivos de projeto (formato antigo, menos comum com Maven)
+*.ipr
+
+# Arquivos de cache do editor (pode variar)
+# .idea/shelf/
+# .idea/workspace.xml - Se não quiser compartilhar configurações de workspace
+
+### STS / Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+# Cache específico do STS4
+.sts4-cache/
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+# A pasta build é geralmente coberta por 'target/' em projetos Maven,
+# mas pode ser útil se houver outros processos de build.
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Sistema Operacional ###
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails do Windows
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+
+# Arquivos de lixeira do Windows
+Desktop.ini
+$RECYCLE.BIN/
+
+### Outros ###
+# Arquivos de configuração local que podem conter informações sensíveis
+# ou configurações específicas do ambiente do desenvolvedor.
+# Exemplo: application-local.properties
+# *.local
+# application-*.properties
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.swp
+*~
