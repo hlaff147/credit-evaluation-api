@@ -1,6 +1,7 @@
 package com.neurolake.challenge.credit_evaluation_api.infrastructure.adapter.in.web;
 
 import com.neurolake.challenge.credit_evaluation_api.application.domain.model.Client;
+import com.neurolake.challenge.credit_evaluation_api.application.domain.model.CreditType;
 import com.neurolake.challenge.credit_evaluation_api.application.ports.in.*;
 import com.neurolake.challenge.credit_evaluation_api.infrastructure.adapter.in.web.dto.AutomotiveCreditEligibilityResponse;
 import com.neurolake.challenge.credit_evaluation_api.infrastructure.adapter.in.web.dto.ClientRequestDTO;
@@ -8,6 +9,7 @@ import com.neurolake.challenge.credit_evaluation_api.infrastructure.adapter.in.w
 import com.neurolake.challenge.credit_evaluation_api.infrastructure.adapter.in.web.dto.ClientSummaryDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/client")
+@RequestMapping("/api/clients")
 @RequiredArgsConstructor
 @Tag(name = "Client API", description = "API para gerenciamento de clientes e avaliação de crédito")
 public class ClientController {
@@ -35,7 +37,7 @@ public class ClientController {
 
     @PostMapping
     @Operation(summary = "Registrar um novo cliente", description = "Cria um novo cliente e avalia sua elegibilidade para diferentes tipos de crédito")
-    public ResponseEntity<Void> registerClient(@Valid @RequestBody ClientRequestDTO requestDTO) {
+    public ResponseEntity<ClientResponseDTO> registerClient(@Valid @RequestBody ClientRequestDTO requestDTO) {
         log.info("Received request to register client: {}", requestDTO.getName());
 
         Client client = Client.builder()
@@ -44,7 +46,18 @@ public class ClientController {
                 .income(requestDTO.getIncome())
                 .build();
 
+        List<CreditType> eligibleTypes = evaluateCreditUseCase.evaluateClientCreditTypes(client);
+        client.setEligibleCreditTypes(eligibleTypes);
+        
         Client savedClient = registerClientUseCase.registerClient(client);
+        
+        ClientResponseDTO response = ClientResponseDTO.builder()
+                .id(savedClient.getId())
+                .name(savedClient.getName())
+                .age(savedClient.getAge())
+                .income(savedClient.getIncome())
+                .eligibleCreditTypes(savedClient.getEligibleCreditTypes())
+                .build();
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -52,7 +65,7 @@ public class ClientController {
                 .buildAndExpand(savedClient.getId())
                 .toUri();
 
-        return ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping("/{id}")
@@ -69,7 +82,7 @@ public class ClientController {
                         .eligibleCreditTypes(client.getEligibleCreditTypes())
                         .build())
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new EntityNotFoundException("Client not found with id: " + id));
     }
 
     @GetMapping("/{clientId}/automotive-credit")
@@ -77,19 +90,19 @@ public class ClientController {
     public ResponseEntity<AutomotiveCreditEligibilityResponse> getAutomotiveCreditEligibility(@PathVariable Long clientId) {
         log.info("Received request to evaluate automotive credit for client ID: {}", clientId);
 
-        return getClientUseCase.getClientById(clientId)
-                .map(client -> {
-                    boolean eligibleForHatch = evaluateAutomotiveCreditUseCase.isEligibleForHatchCredit(client);
-                    boolean eligibleForSUV = evaluateAutomotiveCreditUseCase.isEligibleForSUVCredit(client);
+        Client client = getClientUseCase.getClientById(clientId)
+                .orElseThrow(() -> new EntityNotFoundException("Client not found with id: " + clientId));
 
-                    return AutomotiveCreditEligibilityResponse.builder()
-                            .clientName(client.getName())
-                            .eligibleForHatch(eligibleForHatch)
-                            .eligibleForSUV(eligibleForSUV)
-                            .build();
-                })
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        boolean eligibleForHatch = evaluateAutomotiveCreditUseCase.isEligibleForHatchCredit(client);
+        boolean eligibleForSUV = evaluateAutomotiveCreditUseCase.isEligibleForSUVCredit(client);
+
+        AutomotiveCreditEligibilityResponse response = AutomotiveCreditEligibilityResponse.builder()
+                .clientName(client.getName())
+                .eligibleForHatch(eligibleForHatch)
+                .eligibleForSUV(eligibleForSUV)
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/eligible-fixed-hatch")

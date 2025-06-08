@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define a URL base da sua API
-API_URL="http://localhost:8080/api/client"
+API_URL="http://localhost:8080/api/clients"
 
 # Define o tipo de conteúdo para as requisições
 CONTENT_TYPE="Content-Type: application/json"
