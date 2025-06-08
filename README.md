@@ -1,179 +1,227 @@
 # API de Avaliação de Crédito: Desafio Neurotech
 
-Esta é uma API RESTful desenvolvida em **Java** com **Spring Boot**, criada para o desafio de desenvolvedores da Neurotech. Ela foi projetada para avaliar e aplicar diferentes modalidades de crédito a clientes Pessoa Física (PF) com base em critérios de negócio específicos. Além disso, a API determina a elegibilidade de clientes para crédito automotivo.
+Esta é uma API RESTful desenvolvida em **Java** com **Spring Boot**, criada para o desafio de desenvolvedores da Neurotech. Ela avalia e aplica diferentes modalidades de crédito a clientes Pessoa Física (PF) com base em critérios de negócio específicos, incluindo elegibilidade para crédito automotivo.
 
 ---
 
-## Arquitetura
+## Sumário
+- [Arquitetura e Patterns](#arquitetura-e-patterns)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Como Executar a Aplicação](#como-executar-a-aplicacao)
+- [Documentação da API (Swagger UI)](#documentacao-da-api-swagger-ui)
+- [Endpoints e Exemplos de Uso](#endpoints-e-exemplos-de-uso)
+- [Validação e Tratamento de Erros](#validacao-e-tratamento-de-erros)
+- [Testes Automatizados e Patterns](#testes-automatizados-e-patterns)
+- [Dicas de Desenvolvimento](#dicas-de-desenvolvimento)
+- [Roadmap e Melhorias Futuras](#roadmap-e-melhorias-futuras)
 
-O projeto adota a **Arquitetura Hexagonal (Ports and Adapters)**, garantindo uma clara separação entre a lógica de negócio central (o **domínio**) e os detalhes de infraestrutura (como banco de dados e APIs externas). Essa abordagem promove um código mais testável, flexível e resiliente a mudanças.
+---
+
+## Arquitetura e Patterns
+
+O projeto adota a **Arquitetura Hexagonal (Ports and Adapters)**, promovendo separação entre domínio e infraestrutura. Principais patterns e práticas:
+- **DTO Pattern** para requests/responses
+- **Service Layer** para lógica de negócio
+- **Global Exception Handler** (`@ControllerAdvice`)
+- **Validação declarativa** (Bean Validation)
+- **Testes organizados por camada** (unitário, componente, integração)
+- **Builder Pattern** (Lombok)
 
 ### Estrutura de Pacotes
-
-A estrutura de pacotes reflete as camadas da arquitetura hexagonal:
-
 ```
-src/main/java/
-└── com/
-└── neurolake/
-└── challenge/
-└── creditevaluation/  # Pacote raiz do projeto
+src/main/java/com/neurolake/challenge/credit_evaluation_api/
 ├── application/
-│   ├── domain/        # Core do domínio: modelos, serviços e regras de negócio puras
-│   │   ├── model/
-│   │   ├── service/
-│   │   └── rules/
-│   └── ports/         # Definições de Ports (interfaces) de entrada e saída
-│       ├── in/
-│       └── out/
-└── infrastructure/    # Adaptadores: implementações dos ports e detalhes de infraestrutura
-├── adapter/
-│   ├── in/        # Adaptadores de entrada (e.g., camada web)
-│   │   └── web/
-│   └── out/       # Adaptadores de saída (e.g., persistência)
-│       ├── persistence/
-│       └── creditengine/
-└── config/        # Configurações gerais do Spring Boot
+│   ├── domain/        # Modelos, serviços e regras de negócio
+│   └── ports/         # Ports (interfaces) de entrada e saída
+└── infrastructure/
+    ├── adapter/
+    │   ├── in/web/    # Adaptadores de entrada (controllers)
+    │   └── out/       # Adaptadores de saída (persistência, engines)
+    └── config/        # Configurações Spring Boot
 ```
-*A estrutura de pacotes acima reflete a organização interna e pode ser ajustada conforme a sua implementação exata `com.neurolake.challenge.credit_evaluation_api`.*
 
 ---
 
-## Tecnologias Chave
-
-Este projeto foi construído utilizando as seguintes tecnologias:
-
-* **Java 24**: Linguagem de programação.
-* **Spring Boot 3.5.0**: Framework para construção de aplicações robustas.
-    * **Spring Web**: Criação de APIs RESTful.
-    * **Spring Data JPA**: Abstração para persistência de dados.
-    * **Spring Boot Validation**: Validação declarativa de dados.
-    * **Spring Boot Test**: Ambiente completo para testes automatizados.
-* **H2 Database**: Banco de dados em memória para desenvolvimento e testes.
-* **Lombok**: Redução de boilerplate code (Getters/Setters, Construtores, etc.).
-* **SpringDoc OpenAPI (Swagger UI) 2.3.0**: Geração automática e interativa da documentação da API.
-* **Maven**: Ferramenta de gerenciamento de dependências e build.
-
----
-
-## Requisitos para Execução
-
-Para rodar este projeto, você precisará ter instalado:
-
-* **JDK 24** ou superior
-* **Maven 3.6.x** ou superior
+## Tecnologias Utilizadas
+- **Java 24**
+- **Spring Boot 3.5.0** (Web, Data JPA, Validation, Test)
+- **MySQL** (produção e testes com Testcontainers)
+- **Lombok**
+- **SpringDoc OpenAPI (Swagger UI)**
+- **Maven**
+- **Testcontainers** (integração)
 
 ---
 
 ## Como Executar a Aplicação
 
-Siga os passos abaixo para colocar a API no ar:
-
-1.  **Clone seu fork do repositório:**
-    ```bash
-    git clone [https://github.com/seu-usuario/credit-evaluation-api.git](https://github.com/seu-usuario/credit-evaluation-api.git)
-    cd credit-evaluation-api
-    ```
-2.  **Compile e inicie a aplicação via Maven:**
-    ```bash
-    mvn clean install
-    mvn spring-boot:run
-    ```
-A API estará acessível em `http://localhost:8080`.
+1. **Pré-requisitos:** JDK 24+, Maven 3.6+, MySQL rodando (ou use Testcontainers nos testes)
+2. **Build e execução:**
+   ```bash
+   mvn clean install
+   mvn spring-boot:run
+   ```
+3. **Acesse:**
+   - API: `http://localhost:8080`
+   - Swagger: `http://localhost:8080/swagger-ui.html`
 
 ---
 
 ## Documentação da API (Swagger UI)
-
-A documentação interativa completa dos endpoints está disponível através do Swagger UI:
-`http://localhost:8080/swagger-ui.html`
-
-O console do H2 Database, para inspeção dos dados em memória, pode ser acessado em:
-`http://localhost:8080/h2-console`
-*Credenciais: JDBC URL: `jdbc:h2:mem:creditdb` (verifique seu `application.properties`), User: `sa`, Password: (deixe em branco)*
+Acesse a documentação interativa em `/swagger-ui.html` para explorar todos os endpoints, exemplos de request/response e erros.
 
 ---
 
-## Endpoints da API
+## Endpoints e Exemplos de Uso
 
-A API foi desenvolvida seguindo os princípios RESTful, utilizando códigos de status HTTP apropriados e validação de dados de entrada.
+### Cadastro de Cliente
+**POST /api/clients**
 
-### Clientes e Créditos Principais
+Request:
+```json
+{
+  "name": "João da Silva",
+  "age": 35,
+  "income": 10000.0
+}
+```
+Response 201 Created:
+Headers:
+```
+Location: http://localhost:8080/api/clients/65
+Content-Type: application/json
+```
+Body:
+```json
+{
+  "id": 65,
+  "name": "João da Silva",
+  "age": 35,
+  "income": 10000.0,
+  "eligibleCreditTypes": ["VARIABLE_INTEREST"]
+}
+```
 
-* **`POST /api/client`**: **Registra um novo cliente** e, no processo, avalia e salva todos os tipos de crédito para os quais ele é elegível.
-    * **Request Body Exemplo**:
-        ```json
-        {
-            "name": "João Silva",
-            "age": 30,
-            "income": 7500.00
-        }
-        ```
-    * **Respostas Esperadas**:
-        * `201 Created` - Em caso de sucesso.
-        * **Header**: `Location: http://localhost:8080/api/client/{id_do_cliente}` (URL para acessar o cliente recém-criado).
+### Buscar Cliente por ID
+**GET /api/clients/{id}**
 
-* **`GET /api/client/{id}`**: **Retorna os dados detalhados de um cliente** específico, incluindo a lista de `eligibleCreditTypes` (tipos de crédito para os quais ele é elegível).
-    * **Path Parameter**: `{id}` - O identificador único do cliente.
-    * **Respostas Esperadas**:
-        * `200 OK` - Com um objeto JSON do cliente.
-        * `404 Not Found` - Se o cliente não existir.
+Response 200 OK:
+```json
+{
+  "id": 65,
+  "name": "João da Silva",
+  "age": 35,
+  "income": 10000.0,
+  "eligibleCreditTypes": ["VARIABLE_INTEREST"]
+}
+```
 
-* **`GET /api/client`**: **Lista todos os clientes** cadastrados na aplicação.
-    * **Respostas Esperadas**:
-        * `200 OK` - Com uma lista de objetos JSON de clientes.
+### Listar Todos os Clientes
+**GET /api/clients**
 
-### Crédito Automotivo
+Response 200 OK:
+```json
+[
+  { "id": 65, "name": "João da Silva", ... },
+  ...
+]
+```
 
-* **`GET /api/client/{clientId}/automotive-credit`**: **Avalia a elegibilidade de um cliente para crédito automotivo**, especificamente para veículos Hatch e SUV.
-    * **Path Parameter**: `{clientId}` - O identificador único do cliente.
-    * **Respostas Esperadas**:
-        * `200 OK` - JSON indicando a elegibilidade para cada tipo de veículo.
-        * `404 Not Found` - Se o cliente não existir.
+### Avaliar Crédito Automotivo
+**GET /api/clients/{clientId}/automotive-credit**
 
-### Endpoint Adicional (Critério Combinado)
+Response 200 OK:
+```json
+{
+  "clientName": "João da Silva",
+  "eligibleForHatch": true,
+  "eligibleForSUV": false
+}
+```
 
-* **`GET /api/client/eligible-fixed-hatch`**: **Lista clientes específicos** que atendem a uma combinação de critérios:
-    * Idade entre **23 e 49 anos** (inclusive).
-    * Elegíveis para **Crédito com Juros Fixos**.
-    * Elegíveis para **Crédito Automotivo tipo Hatch**.
-    * **Respostas Esperadas**:
-        * `200 OK` - Com uma lista de objetos JSON contendo `Name` e `Income` de cada cliente qualificado.
+### Listar Clientes Elegíveis para Crédito Fixo e Hatch
+**GET /api/clients/eligible-fixed-hatch**
+
+Response 200 OK:
+```json
+[
+  { "Name": "Ana Pereira", "Income": 10000.0 },
+  ...
+]
+```
 
 ---
 
-## Regras de Negócio Implementadas
+## Validação e Tratamento de Erros
 
-As modalidades de crédito e as elegibilidades automotivas são baseadas nos seguintes critérios:
-
-### 1. Modalidades de Crédito Principais (Múltipla Elegibilidade)
-
-Um cliente pode ser elegível para **múltiplos** tipos de crédito principais, e todos são retornados.
-
-* **Crédito com Juros Fixos**:
-    * **Critério**: Idade entre **18 e 25 anos** (inclusive).
-    * **Renda**: Independente.
-    * **Taxa de Juros**: 5% a.a.
-
-* **Crédito com Juros Variáveis**:
-    * **Critério**: Idade entre **21 e 65 anos** (inclusive).
-    * **Renda**: Entre **R$ 5.000,00 e R$ 15.000,00** (inclusive).
-
-* **Crédito Consignado**:
-    * **Critério**: Idade **acima de 65 anos**.
-    * **Renda**: Independente.
-
-### 2. Elegibilidade para Crédito Automotivo
-
-* **Veículo Tipo Hatch**:
-    * **Critério**: Renda entre **R$ 5.000,00 e R$ 15.000,00** (inclusive).
-
-* **Veículo Tipo SUV**:
-    * **Critério**: Renda **acima de R$ 8.000,00** E idade **superior a 20 anos**.
+- **Validação automática** via anotações nos DTOs (`@NotBlank`, `@Min`, `@DecimalMin` etc).
+- **Erros de validação** retornam JSON padronizado:
+```json
+{
+  "timestamp": "2025-06-08T01:08:34.091311",
+  "status": 400,
+  "error": "Validation Error",
+  "validationErrors": {
+    "income": "Income must be a positive value",
+    "name": "Name cannot be blank",
+    "age": "Age must be a positive number"
+  }
+}
+```
+- **404 Not Found** para recursos inexistentes:
+```json
+{
+  "timestamp": "2025-06-08T01:10:00.000000",
+  "status": 404,
+  "error": "Resource Not Found",
+  "message": "Cliente não encontrado"
+}
+```
+- **Handler global**: todos os erros são tratados por um `@ControllerAdvice` centralizado.
 
 ---
 
-## Testes Automatizados
+## Testes Automatizados e Patterns
 
-O projeto inclui testes automatizados para garantir a robustez e o correto funcionamento dos endpoints e das regras de negócio, utilizando as ferramentas padrão do Spring Boot Test.
+- **Testes de componente**: simulam requests HTTP reais (MockMvc), cobrindo fluxos completos e cenários de erro.
+- **Testes de integração**: usam Testcontainers com banco MySQL real para validar persistência e endpoints.
+- **Testes unitários**: cobrem regras de negócio isoladas (ex: elegibilidade por idade/renda).
+- **Fixtures**: geração de dados de teste reutilizáveis.
+- **Padrão de nomenclatura**: `deve<Acao>Quando<Condicao>`.
+- **Cobertura de cenários de erro**: todos os campos obrigatórios e regras possuem testes de validação.
 
+### Como rodar os testes
+```bash
+./mvnw test
+```
+Relatórios em `target/surefire-reports`.
+
+---
+
+## Dicas de Desenvolvimento
+- **Validação declarativa**: use sempre as anotações do Bean Validation.
+- **Tratamento global de erros**: mantenha o padrão JSON para facilitar o consumo por frontends.
+- **Extensibilidade**: novas regras de crédito podem ser adicionadas implementando a interface de regra.
+- **Atualize o Swagger/OpenAPI** ao criar/alterar endpoints.
+- **Use DTOs** para requests/responses, nunca exponha entidades diretamente.
+
+---
+
+## Roadmap e Melhorias Futuras
+- Autenticação e autorização (Spring Security)
+- Versionamento de API
+- Deploy automatizado (CI/CD)
+- Métricas e monitoramento (Actuator, Prometheus)
+- Testes de carga e performance
+
+---
+
+## Contribuição
+Pull requests são bem-vindos! Siga o padrão de testes e mantenha a cobertura.
+
+---
+
+## Contato
+Dúvidas ou sugestões? Abra uma issue ou entre em contato.
+
+---

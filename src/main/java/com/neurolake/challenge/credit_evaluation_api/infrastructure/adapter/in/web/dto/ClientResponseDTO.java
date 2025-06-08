@@ -14,18 +14,18 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClientResponseDTO {
-    @JsonProperty("Id")
+    @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("Name")
+    @JsonProperty("name")
     private String name;
 
-    @JsonProperty("Age")
+    @JsonProperty("age")
     private int age;
 
-    @JsonProperty("Income")
+    @JsonProperty("income")
     private double income;
 
-    @JsonProperty("EligibleCreditTypes")
+    @JsonProperty("eligibleCreditTypes")
     private List<CreditType> eligibleCreditTypes;
 }
