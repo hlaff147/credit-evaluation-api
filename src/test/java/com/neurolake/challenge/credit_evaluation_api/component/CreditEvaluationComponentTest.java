@@ -125,4 +125,67 @@ class CreditEvaluationComponentTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.validationErrors.income").value("Income must be a positive value"));
     }
+
+    @Test
+    @DisplayName("Deve rejeitar múltiplos campos inválidos e validar todas as mensagens de erro")
+    void deveRejeitarMultiplosCamposInvalidos() throws Exception {
+        ClientRequestDTO request = ClientRequestDTO.builder()
+                .name("A") 
+                .age(-10) 
+                .income(-500.0)
+                .build();
+        mockMvc.perform(post("/api/clients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.validationErrors.name").exists())
+                .andExpect(jsonPath("$.validationErrors.age").exists())
+                .andExpect(jsonPath("$.validationErrors.income").exists());
+    }
+
+    @Test
+    @DisplayName("Deve rejeitar nome com mais de 100 caracteres")
+    void deveRejeitarNomeMuitoLongo() throws Exception {
+        String longName = "A".repeat(101);
+        ClientRequestDTO request = ClientRequestDTO.builder()
+                .name(longName)
+                .age(30)
+                .income(5000.0)
+                .build();
+        mockMvc.perform(post("/api/clients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.validationErrors.name").value("Name must be between 3 and 100 characters"));
+    }
+
+    @Test
+    @DisplayName("Deve rejeitar renda extremamente negativa")
+    void deveRejeitarRendaExtremamenteNegativa() throws Exception {
+        ClientRequestDTO request = ClientRequestDTO.builder()
+                .name("Cliente Teste")
+                .age(40)
+                .income(-1_000_000.0)
+                .build();
+        mockMvc.perform(post("/api/clients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.validationErrors.income").value("Income must be a positive value"));
+    }
+
+    @Test
+    @DisplayName("Deve aceitar renda extremamente alta")
+    void deveAceitarRendaExtremamenteAlta() throws Exception {
+        ClientRequestDTO request = ClientRequestDTO.builder()
+                .name("Cliente Rico")
+                .age(40)
+                .income(1_000_000_000.0)
+                .build();
+        mockMvc.perform(post("/api/clients")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.income").value(1_000_000_000.0));
+    }
 }

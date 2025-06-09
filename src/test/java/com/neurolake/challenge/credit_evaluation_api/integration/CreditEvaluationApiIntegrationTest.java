@@ -89,4 +89,35 @@ class CreditEvaluationApiIntegrationTest {
             .as("Lista de tipos de crédito elegíveis não deve ser nula")
             .isNotNull();
     }
+
+    @Test
+    @DisplayName("Deve retornar 404 para cliente inexistente na avaliação automotiva")
+    void deveRetornar404ClienteInexistenteAutomotivo() {
+        ResponseEntity<String> response = restTemplate.getForEntity(
+            "/api/clients/{id}/automotive-credit",
+            String.class,
+            999999L
+        );
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).contains("Resource Not Found");
+    }
+
+    @Test
+    @DisplayName("Deve rejeitar cadastro de cliente com dados inválidos (idade negativa, renda negativa, nome curto)")
+    void deveRejeitarCadastroClienteInvalido() {
+        Client client = new Client();
+        client.setName("A");
+        client.setAge(-10);
+        client.setIncome(-1000.0);
+        ResponseEntity<String> response = restTemplate.postForEntity(
+            "/api/clients",
+            client,
+            String.class
+        );
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).contains("Validation Error");
+        assertThat(response.getBody()).contains("name");
+        assertThat(response.getBody()).contains("age");
+        assertThat(response.getBody()).contains("income");
+    }
 }

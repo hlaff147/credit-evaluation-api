@@ -92,12 +92,76 @@ class CreditEvaluationServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("Validação de Nome - Casos de Borda")
+    class NameEdgeCases {
+        @ParameterizedTest(name = "Nome inválido: {0}")
+        @CsvSource({
+            "null",
+            "A",
+            "'A'.repeat(101)"
+        })
+        void deveRejeitarNomesDeBorda(String name) {
+            Client client;
+            if ("null".equals(name)) {
+                client = ClientFixture.clientWithNullName();
+            } else if ("A".equals(name)) {
+                client = ClientFixture.clientWithShortName();
+            } else if ("'A'.repeat(101)".equals(name)) {
+                client = ClientFixture.clientWithLongName();
+            } else {
+                client = ClientFixture.clientWithSpecialCharName();
+            }
+            assertThat(isValidName(client.getName())).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("Validação de Idade - Casos de Borda")
+    class AgeEdgeCases {
+        @Test
+        void deveRejeitarIdadeNegativa() {
+            Client client = ClientFixture.clientWithNegativeAge();
+            assertThat(isEligibleByAge(client)).isFalse();
+        }
+        @Test
+        void deveRejeitarIdadeZero() {
+            Client client = ClientFixture.clientWithZeroAge();
+            assertThat(isEligibleByAge(client)).isFalse();
+        }
+        @Test
+        void deveRejeitarIdadeMuitoAlta() {
+            Client client = ClientFixture.clientWithHighAge();
+            assertThat(isEligibleByAge(client)).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("Validação de Renda - Casos de Borda")
+    class IncomeEdgeCases {
+        @Test
+        void deveRejeitarRendaNegativa() {
+            Client client = ClientFixture.clientWithNegativeIncome();
+            assertThat(determineEligibleCreditTypes(client)).isEmpty();
+        }
+        @Test
+        void deveRejeitarRendaZero() {
+            Client client = ClientFixture.clientWithZeroIncome();
+            assertThat(determineEligibleCreditTypes(client)).isEmpty();
+        }
+        @Test
+        void deveAceitarRendaExtremamenteAlta() {
+            Client client = ClientFixture.clientWithExtremeHighIncome();
+            assertThat(determineEligibleCreditTypes(client)).isNotEmpty();
+        }
+    }
+
     private boolean isEligibleByAge(Client client) {
         return client.getAge() >= 18 && client.getAge() <= 65;
     }
 
     private boolean isValidName(String name) {
-        return name != null && !name.trim().isEmpty();
+        return name != null && name.trim().length() >= 3 && name.trim().length() <= 100;
     }
 
     private List<CreditType> determineEligibleCreditTypes(Client client) {

@@ -69,4 +69,64 @@ public class ClientFixture extends BaseFixture {
                 .name(name)
                 .build();
     }
+
+    public static Client clientWithNullName() {
+        return validClientBuilder()
+                .name(null)
+                .build();
+    }
+
+    public static Client clientWithShortName() {
+        return validClientBuilder()
+                .name("A")
+                .build();
+    }
+
+    public static Client clientWithLongName() {
+        return validClientBuilder()
+                .name("A".repeat(101))
+                .build();
+    }
+
+    public static Client clientWithSpecialCharName() {
+        return validClientBuilder()
+                .name("João@#%$!")
+                .build();
+    }
+
+    public static Client clientWithNegativeAge() {
+        return validClientBuilder()
+                .age(-10)
+                .build();
+    }
+
+    public static Client clientWithZeroAge() {
+        return validClientBuilder()
+                .age(0)
+                .build();
+    }
+
+    public static Client clientWithHighAge() {
+        return validClientBuilder()
+                .age(120)
+                .build();
+    }
+
+    public static Client clientWithNegativeIncome() {
+        return validClientBuilder()
+                .income(-1000.0)
+                .build();
+    }
+
+    public static Client clientWithZeroIncome() {
+        return validClientBuilder()
+                .income(0.0)
+                .build();
+    }
+
+    public static Client clientWithExtremeHighIncome() {
+        return validClientBuilder()
+                .income(1_000_000_000.0)
+                .build();
+    }
 }
