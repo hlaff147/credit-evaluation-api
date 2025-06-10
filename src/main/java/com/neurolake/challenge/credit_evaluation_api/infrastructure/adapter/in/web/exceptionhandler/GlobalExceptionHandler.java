@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.neurolake.challenge.credit_evaluation_api.infrastructure.adapter.in.web.exception.ErrorResponse;
 import com.neurolake.challenge.credit_evaluation_api.infrastructure.adapter.in.web.exception.ValidationErrorResponse;
@@ -83,5 +84,17 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoHandlerFound(NoHandlerFoundException ex) {
+        log.error("No handler found for request", ex);
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Resource Not Found",
+                "O endpoint solicitado não existe. Verifique a URL."
+        );
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 }
